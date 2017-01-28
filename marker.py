@@ -20,8 +20,8 @@ class Sphero(object):
         self.spherey.type = 2 # sphere
         self.spherey.action = 0
         self.spherey.pose.position = self.state.point
-        self.spherey.pose.orientation.x = 0
-        self.spherey.pose.orientation.y = 0
+        self.spherey.pose.orientation.x = 1
+        self.spherey.pose.orientation.y = 2
         self.spherey.pose.orientation.z = 0
         self.spherey.pose.orientation.w = 1.0
         self.spherey.scale.x = 1.0
