@@ -1,4 +1,4 @@
-#!/usr/bin/env/ python
+#!/usr/bin/env python
 
 """Basics of creating messages in ROS node"""
 
