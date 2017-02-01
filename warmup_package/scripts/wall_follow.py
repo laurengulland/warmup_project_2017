@@ -18,15 +18,28 @@ class WallFollower(object):
         self.see_wall = False
         self.is_bumped = False
     def process_scan(self,msg):
-        for dist in msg.ranges[0:10]:
+        self.wall = []
+        self.see_wall = False
+        for i in range(0,20):
+            dist = msg.ranges[i]
             if dist == 0.0:
                 continue
             elif dist < 1.0:
-                self.see_obstacle = True
-                print "WALL!"
-                return
-        self.see_wall = False
-        print "NO WALL!"
+                self.see_wall = True
+                self.wall.append([dist, i])
+        for i in range(340,360):
+            dist = msg.ranges[i]
+            if dist == 0.0:
+                continue
+            elif dist < 1.0:
+                self.see_wall = True
+                self.wall.append([dist, i])
+        print str(self.see_wall)
+        if self.see_wall:
+            self.wall.sort(key=lambda tup: tup[0])
+            if self.wall[0][1] > 180:
+                self.wall[0][0] *= -1
+
     def process_bump(self,msg):
         if (msg.leftFront==1 or msg.leftFront==1 or msg.rightFront ==1 or msg.rightSide==1):
             print 'BUMP!'
@@ -45,10 +58,13 @@ class WallFollower(object):
             if self.is_bumped:
                 self.fucking_stop()
                 break
-            elif not self.see_wall:
-                self.moves.linear.x = .1
+            elif self.see_wall:
+                #self.moves.linear.x = -.1
+                self.moves.angular.z = -.2/(self.wall[0][0])
             else:
-                self.moves.angular.z = 3.0
+                self.moves.linear.x = .1
+                self.moves.angular.z = 0.0
+                #self.moves.angular.z = .5
             self.pub.publish(self.moves)
             self.r.sleep()
         print "Node is finished!"
@@ -56,9 +72,3 @@ class WallFollower(object):
 
 FollowIt = WallFollower()
 FollowIt.run()
-# for dist in msg.ranges[350:361]:
-# 	if dist == 0.0:
-# 		continue
-# 	if dist < 1.0:
-# 		self.see_obstacle = True
-# 		return
