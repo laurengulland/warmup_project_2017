@@ -11,6 +11,7 @@ import tty #for key gathering
 import select #for key gathering
 import sys #for key gathering
 import termios #for key gathering
+from math import pi
 
 #https://github.com/paulruvolo/comprobo15/blob/master/my_pf/scripts/helper_functions.py
 def convert_pose_to_xy_and_theta(msg):
@@ -52,26 +53,22 @@ class DriveSquare(object):
         # print self.pos
     def process_bump(self,msg):
         if (msg.leftFront==1 or msg.leftFront==1 or msg.rightFront ==1 or msg.rightSide==1):
-            print 'BUMP!'
+            # print 'BUMP!'
             self.is_bumped = True
         else:
 			self.is_bumped = False
 
     def drive_motherfucker(self): #drive forward for one meter, then activate turn function
-        print 'DRIVE!'
+        # print 'DRIVE!'
         self.start_pos.x, self.start_pos.y = self.pos.x, self.pos.y
         self.moves.linear.x = 1.0
         self.moves.angular.z = 0.0
         # print self.moves
         self.pub.publish(self.moves)
-        if self.is_bumped: #stop if bumped
-            self.fucking_stop()
-        while ((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) < 1: #while have traveled less than a meter
-            if self.key == '\x03':
-                rospy.signal_shutdown('human exit.')
+        while (((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) < 1) and not rospy.is_shutdown(): #while have traveled less than a meter
             if self.is_bumped: #stop if bumped
+                print 'BUMPED, STOPPING'
                 self.fucking_stop()
-                break
             else:
                 self.moves.linear.x = 1.0
                 self.moves.angular.z = 0.0
@@ -79,55 +76,53 @@ class DriveSquare(object):
                 self.pub.publish(self.moves)
             self.r.sleep()
         if ((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) > 1: #if have driven for more than 1 meter, turn
-            # self.turn_baby_turn(self)
-            return None
+            # print 'GO TO TURN'
+            self.turn_baby_turn()
 
     def turn_baby_turn(self):
-        print "TURN!"
+        # print "TURN!"
         self.start_pos.z = self.pos.z
         self.moves.linear.x = 0.0
-        self.moves.angular.z = 1.0
+        self.moves.angular.z = 0.25
         self.pub.publish(self.moves)
-        while self.pos.z - self.start_pos.z < 90:
-            if self.key == '\x03':
-                rospy.signal_shutdown('human exit.')
+        # print 'START POSITION: ', self.start_pos.z
+        while min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z))) < (pi/2) and not rospy.is_shutdown():
+            # print self.pos.z
+            # dif = pi/2 - min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z)))
+            # print 'dif: ', dif/pi, 'pi'
             if self.is_bumped: #stop if bumped
+                print 'BUMPED, STOPPING'
                 self.fucking_stop()
-                break
             self.moves.linear.x = 0.0
-            self.moves.angular.z = 1.0
+            self.moves.angular.z = 0.25
             self.pub.publish(self.moves)
             self.r.sleep()
         self.turns += 1
         if self.turns >= 4: #once you've turned four times, you're back where you started, so stop.
+            print 'END OF SQUARE.'
             self.fuckingstop()
-            return None
-        # else:
-        #     self.drive_motherfucker()
+        elif not rospy.is_shutdown:
+            # print 'GO TO DRIVE'
+            self.drive_motherfucker()
 
     def fuckingstop(self):
-        print 'STOP!'
+        # print 'STOP!'
         self.moves.linear.x = 0.0
         self.moves.angular.z = 0.0
         self.pub.publish(self.moves)
-        return None
-        # if self.key == '\x03':
-        #     rospy.signal_shutdown('human exit.')
-        # print self.moves
 
     def run(self):
         rospy.on_shutdown(self.fuckingstop)
         # while not rospy.is_shutdown():
-        while self.key != '\x03': #while you haven't exited via Ctrl-C
-            print 'Press Space to start square!'
+        while not rospy.is_shutdown(): #while you haven't exited via Ctrl-C
+            print 'Press Space to start square, or Ctrl-C to exit'
             self.key = self.getKey()
             if self.key == '\x03':
                 rospy.signal_shutdown('human exit.')
             if self.key == ' ':
                 self.r.sleep()
                 print 'START!'
-                i = self.drive_motherfucker()
-                i = self.turn_baby_turn()
+                self.drive_motherfucker()
         print "Node is finished"
 
 squaaaaare=DriveSquare()
