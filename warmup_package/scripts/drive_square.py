@@ -65,7 +65,7 @@ class DriveSquare(object):
         self.moves.angular.z = 0.0
         # print self.moves
         self.pub.publish(self.moves)
-        while (((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) < 1) and not rospy.is_shutdown(): #while have traveled less than a meter
+        while (((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) < .95) and not rospy.is_shutdown(): #while have traveled less than a meter
             if self.is_bumped: #stop if bumped
                 print 'BUMPED, STOPPING'
                 self.fucking_stop()
@@ -75,7 +75,7 @@ class DriveSquare(object):
                 # print self.moves
                 self.pub.publish(self.moves)
             self.r.sleep()
-        if ((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) > 1: #if have driven for more than 1 meter, turn
+        if ((self.pos.x - self.start_pos.x)**2 + (self.pos.y - self.start_pos.y)**2) > .95: #if have driven for more than 1 meter, turn
             # print 'GO TO TURN'
             self.turn_baby_turn()
 
@@ -86,7 +86,7 @@ class DriveSquare(object):
         self.moves.angular.z = 0.25
         self.pub.publish(self.moves)
         # print 'START POSITION: ', self.start_pos.z
-        while min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z))) < (pi/2) and not rospy.is_shutdown():
+        while min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z))) < (pi/2 - pi/16) and not rospy.is_shutdown():
             # print self.pos.z
             # dif = pi/2 - min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z)))
             # print 'dif: ', dif/pi, 'pi'
@@ -101,9 +101,10 @@ class DriveSquare(object):
         if self.turns >= 4: #once you've turned four times, you're back where you started, so stop.
             print 'END OF SQUARE.'
             self.fuckingstop()
-        elif not rospy.is_shutdown:
+        elif not rospy.is_shutdown():
             # print 'GO TO DRIVE'
             self.drive_motherfucker()
+        self.fuckingstop()
 
     def fuckingstop(self):
         # print 'STOP!'
