@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """Obstacle Avoidance Node"""
-""" Implemented using finite state control: switches between going in original
-    direction and following a wall (obstacle) in order to go around obstacles """
+""" Implemented using finite state control: switches between travelling in original
+    direction and following along wall (obstacle) in order to go around obstacles """
 
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, PoseArray, Pose, Twist, Vector3, Quaternion, Point
 from tf.transformations import euler_from_quaternion, rotation_matrix, quaternion_from_matrix
@@ -75,7 +75,6 @@ class ObstacleAvoider(object):
                 continue
             elif dist < 1.0: #if thing is found within a meter, flag its distance and location in self.thing[]
                 self.see_thing = True
-                # print 'THING 1'
                 self.thing.append([dist, i*pi/180])
         for i in range(320,360):
             dist = msg.ranges[i]
@@ -83,37 +82,19 @@ class ObstacleAvoider(object):
                 continue
             elif dist < 1.0: #if thing is found within a meter, flag its distance and location in self.thing[]
                 self.see_thing = True
-                # print 'THING 2'
                 self.thing.append([dist, (i-360)*pi/180])
-        for i in range(270,320): #find objects next to you
+        for i in range(270,320): #find objects along side of robot
             dist = msg.ranges[i]
             if dist < 0.25 and dist > 0.0:
-                # print 'more thing ', i
                 self.see_morething = True
-        for i in range(40, 90): #find objects next to you
+        for i in range(40, 90): #find objects along side of robot
             dist = msg.ranges[i]
             if dist < 0.25 and dist > 0.0:
-                # print 'more thing ', i
                 self.see_morething = True
         if self.see_thing:
             self.thing.sort(key=lambda lst: lst[0]) #sort lists by angles (second element)
             if self.thing[0][1] > 180: #if the angle is on one side
                 self.thing[0][0] *= -1 #flip some shit so it goes the right way
-
-    # def find_target(self, positions):
-    #     self.distances = []
-    #     self.angles = []
-    #     for pose in positions:
-    #         self.distances.append(pose[0])
-    #         self.angles.append(pose[1])
-    #     self.min_dist = min(self.distances)
-    #     self.max_dist = max(self.distances)
-    #     self.min_angle = min(self.angles)
-    #     self.max_angle = max(self.angles)
-    #
-    #     print numpy.degrees(self.min_angle)
-    #     print '     ', numpy.degrees(self.max_angle)
-
 
     def process_bump(self,msg):
         if (msg.leftFront==1 or msg.leftFront==1 or msg.rightFront ==1 or msg.rightSide==1):
@@ -133,30 +114,26 @@ class ObstacleAvoider(object):
         self.r.sleep()
         self.start_pos.z = self.pos.z #set initial position at start of movement.
         while not rospy.is_shutdown():
-            if self.is_bumped:
+            if self.is_bumped: #stop when bumped.
                 self.fucking_stop()
                 break
             elif self.see_thing: #follow the thing proportionally.
-                # self.find_target(self.thing)
-                #self.moves.linear.x = -.1
-                #self.moves.angular.z = -.2/(self.thing[0][0]) #turn to move parallel to the thing proportionally
+                self.moves.linear.x = 0.1
+                self.moves.angular.z = -.2/(self.thing[0][0]) #turn to move parallel to the thing proportionally
                 self.state = 'AVOID'
-                # print "I need to turn:"
-                # print str(angle_diff(self.pos.z, self.avgangle))
-                # self.moves.linear.x = 0.2
-                # self.moves.angular.z = -angle_diff(self.pos.z, self.avgangle)
             elif not self.see_thing and self.see_morething: #if nothing in front but travelling next to object
                 self.state = 'FOLLOW'
-                # self.moves.linear.x = 0.5 #follow object next to you until it ends
+                self.moves.linear.x = 0.5 #follow object next to you until it ends
             elif not self.see_thing and not self.see_morething: #if nothing around you
-                print numpy.degrees(self.pos.z)
-                print numpy.degrees(min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z))))
+                # print numpy.degrees(self.pos.z)
+                # print numpy.degrees(min((2*pi - abs(self.start_pos.z - self.pos.z)), (abs(self.start_pos.z - self.pos.z))))
                 if abs(self.start_pos.z - self.pos.z) > pi/16: #if not travelling in original starting direction
                     #return to original direction of travel
-                    # self.moves.angular.z =
+                    self.moves.angular.z = 0.1
                     self.state = 'RETURN TO PATH'
                 else:
-                    # self.moves.linear.x = 0.5
+                    #move straight again
+                    self.moves.linear.x = 0.5
                     self.state = 'TRAVEL'
             print self.state
             self.pub.publish(self.moves)
