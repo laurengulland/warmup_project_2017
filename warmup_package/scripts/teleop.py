@@ -18,8 +18,8 @@ class Teleop(object):
         self.settings = termios.tcgetattr(sys.stdin)
         self.key = None
         self.r = rospy.Rate(10) #execute at 10 Hz
-        self.linear_vel = None
-        self.angular_vel = None
+        self.linear = Vector3(x=0.0,y=0.0,z=0.0) #linear velocities vector. only use x.
+        self.angular = Vector3(x=0.0,y=0.0,z=0.0) #angular velocities vector. only use z.
 
     def getKey(self): #From the website
         tty.setraw(sys.stdin.fileno())
@@ -30,41 +30,52 @@ class Teleop(object):
 
     def keyToVel(self):
         if self.key == 'i': #forward
-            self.linear_vel = Vector3(x = 1.0)
-            self.angular_vel = Vector3(z = 0.0)
+            self.linear.x = 1.0
+            self.angular.z = 0.0
         if self.key == 'u': #forward turn left
-            self.linear_vel = Vector3(x = 1.0)
-            self.angular_vel = Vector3(z = 1.0)
+            self.linear.x = 1.0
+            self.angular.z = 1.0
         if self.key == 'o': #forward turn right
-            self.linear_vel = Vector3(x = 1.0)
-            self.angular_vel = Vector3(z = -1.0)
-        elif self.key == 'k': #stop
-            self.linear_vel = Vector3(x = 0.0)
-            self.angular_vel = Vector3(z = 0.0)
+            self.linear.x = 1.0
+            self.angular.z = -1.0
         elif self.key == 'j': #turn counterclockwise
-            self.linear_vel = Vector3(x = 0.0)
-            self.angular_vel = Vector3(z = 1.0)
+            self.linear.x = 0.0
+            self.angular.z = 1.0
         elif self.key == 'l': #turn clockwise
-            self.linear_vel = Vector3(x = 0.0)
-            self.angular_vel = Vector3(z = -1.0)
+            self.linear.x = 0.0
+            self.angular.z = -1.0
         elif self.key == ',': #backwards
-            self.linear_vel = Vector3(x = -1.0)
-            self.angular_vel = Vector3(z = 0.0)
+            self.linear.x = -1.0
+            self.angular.z = 0.0
         elif self.key == 'm': #backwards turn left
-            self.linear_vel = Vector3(x = -1.0)
-            self.angular_vel = Vector3(z = -1.0)
+            self.linear.x = -1.0
+            self.angular.z = -1.0
         elif self.key == '.': #backwards turn right
-            self.linear_vel = Vector3(x = -1.0)
-            self.angular_vel = Vector3(z = 1.0)
+            self.linear.x = -1.0
+            self.angular.z = 1.0
+        else:
+            self.linear.x = 0.0
+            self.angular.z = 0.0
 
     def run(self):
+        print ""
+        print "Reading keyboard commands now to drive the Neato."
+        print "Use the following grid to drive:"
+        print "-------------------------------------------------"
+        print "\tu\ti\to"
+        print "\tj\tk\tl"
+        print "\tm\t,\t."
+        print "-------------------------------------------------"
+        print "Anything else := stop"
+        print 'Ctrl-C to quit'
+
         while self.key != '\x03': #while you haven't exited via Ctrl-C
             self.key = self.getKey()
             if self.key == '\x03':
                 break
             print self.key
             self.keyToVel()
-            twist_msg = Twist(linear=self.linear_vel, angular = self.angular_vel)
+            twist_msg = Twist(linear=self.linear, angular = self.angular)
             print twist_msg
             self.pub.publish(twist_msg)
             self.r.sleep()
