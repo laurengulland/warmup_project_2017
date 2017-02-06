@@ -5,6 +5,7 @@
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, PoseArray, Pose, Twist, Vector3, Quaternion, Point
 from tf.transformations import euler_from_quaternion, rotation_matrix, quaternion_from_matrix
 from sensor_msgs.msg import LaserScan
+from visualization_msgs.msg import Marker
 from neato_node.msg	import Bump
 from nav_msgs.msg import Odometry
 import tf
@@ -12,6 +13,7 @@ import rospy
 import numpy
 import math
 from math import pi
+#from marker import Sphero
 
 #Helper functions go here:
 def convert_pose_to_xy_and_theta(msg):
@@ -19,37 +21,37 @@ def convert_pose_to_xy_and_theta(msg):
     """ Convert pose (geometry_msgs.Pose) to a (x,y,yaw) tuple """
     orientation_tuple = (pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w)
     angles = euler_from_quaternion(orientation_tuple)
-    # print pose.position.x
     return (pose.position.x, pose.position.y, angles[2])
 
-def angle_normalize(z):
-    """ convenience function to map an angle to the range [-pi,pi] """
-    return math.atan2(math.sin(z), math.cos(z))
+class Sphero(object):
+    def __init__(self):
+        self.pub = rospy.Publisher('/visualization_marker', Marker, queue_size=10)
+        self.r = rospy.Rate(10)
+        self.spherey = Marker()
+        self.spherey.header.frame_id = "/odom"
+        self.spherey.header.stamp    = rospy.get_rostime()
+        self.spherey.ns = "robot"
+        self.spherey.id = 0
+        self.spherey.type = 2 # sphere
+        self.spherey.action = 0
+        self.spherey.pose.position.x = 1.0
+        self.spherey.pose.position.y = 2.0
+        self.spherey.scale.x = 0.5
+        self.spherey.scale.y = 0.5
+        self.spherey.scale.z = 0.5
 
-def angle_diff(a, b):
-    """ Calculates the difference between angle a and angle b (both should be in radians)
-        the difference is always based on the closest rotation from angle a to angle b
-        examples:
-            angle_diff(.1,.2) -> -.1
-            angle_diff(.1, 2*math.pi - .1) -> .2
-            angle_diff(.1, .2+2*math.pi) -> -.1
-    """
-    a = angle_normalize(a)
-    b = angle_normalize(b)
-    d1 = a-b
-    d2 = 2*math.pi - math.fabs(d1)
-    if d1 > 0:
-        d2 *= -1.0
-    if math.fabs(d1) < math.fabs(d2):
-        return d1
-    else:
-        return d2
+        self.spherey.color.r = 0.0
+        self.spherey.color.g = 1.0
+        self.spherey.color.b = 1.0
+        self.spherey.color.a = 1.0
+
 
 class PersonFollower(object):
     def __init__(self):
-        rospy.init_node('wall_follow')
+        rospy.init_node('person_follow')
         rospy.Subscriber('/scan', LaserScan, self.process_scan)
         rospy.Subscriber('/bump', Bump, self.process_bump)
+        self.marker = Sphero()
         rospy.Subscriber('/odom', Odometry, self.processOdom)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.r = rospy.Rate(10)
@@ -58,8 +60,22 @@ class PersonFollower(object):
         self.is_bumped = False
         self.pos = Vector3(x=0,y=0,z=0)
 
+
+
     def processOdom(self,msg):
         self.pos.x, self.pos.y, self.pos.z = convert_pose_to_xy_and_theta(msg)
+        self.marker.spherey.pose.position.x = self.pos.x
+        self.marker.spherey.pose.position.y = self.pos.y
+
+    def make_marker(self,polar_position):
+        delta_y = polar_position[0]*math.sin(polar_position[1])
+        delta_x= polar_position[0]*math.cos(polar_position[1])
+        # print 'x:'
+        # print str(delta_x)
+        # print 'y:'
+        # print str(delta_y)
+        self.marker.spherey.pose.position.x = self.pos.x-delta_x
+        self.marker.spherey.pose.position.y = self.pos.y-delta_y
 
     def process_scan(self,msg):
         self.person = []
@@ -79,11 +95,6 @@ class PersonFollower(object):
                 self.see_person = True
                 self.person.append([dist, (i-360)*pi/180])
 
-        # if self.see_wall:
-        #     self.wall.sort(key=lambda lst: lst[0])
-        #     if self.wall[0][1] > 180:
-        #         self.wall[0][0] *= -1
-
     def find_target(self, positions):
         self.distances = []
         self.angles = []
@@ -92,7 +103,7 @@ class PersonFollower(object):
             self.angles.append(pose[1])
         self.avgdist = numpy.mean(self.distances)
         self.avgangle = numpy.mean(self.angles)
-
+        self.make_marker([self.avgdist, self.avgangle])
 
     def process_bump(self,msg):
         if (msg.leftFront==1 or msg.leftFront==1 or msg.rightFront ==1 or msg.rightSide==1):
@@ -101,11 +112,13 @@ class PersonFollower(object):
 
         else:
 			self.is_bumped = False
+
     def fucking_stop(self):
         print 'STOP!'
         self.moves.linear.x = 0.0
         self.moves.angular.z = 0.0
         self.pub.publish(self.moves)
+
     def run(self):
         rospy.on_shutdown(self.fucking_stop)
         while not rospy.is_shutdown():
@@ -114,19 +127,15 @@ class PersonFollower(object):
                 break
             elif self.see_person:
                 self.find_target(self.person)
+                self.moves.linear.x = 0.2*self.avgdist
+                self.moves.angular.z = self.avgangle
 
-                print "I need to turn:"
-                print str(angle_diff(self.pos.z, self.avgangle))
-                self.moves.linear.x = 0.2
-                self.moves.angular.z = -angle_diff(self.pos.z, self.avgangle)
             else:
                 self.moves.linear.x = 0.2
                 self.moves.angular.z = 0.0
 
-                #print "I'm at:"
-                #print str(self.pos.z)
-                #self.moves.angular.z = .5
             self.pub.publish(self.moves)
+            self.marker.pub.publish(self.marker.spherey)
             self.r.sleep()
         print "Node is finished!"
         self.fucking_stop()
