@@ -1,13 +1,14 @@
 #Audrey and Looroon's TODO:
 - Add marker to wall follower
 - Comment wall and person followers
-- Add movement to FS Obj Avoid
-- Comment and debug FS Obj Avoid
+- ~~Add movement to FS Obj Avoid~~
+- ~~Comment and debug FS Obj Avoid~~
 - Write Up all the things!
 - Check to make sure we're not missing anything
 - push and submit
 - PARTY (sleep)
 
+--- 
 
 # Turning in your Work
 See info at: https://sites.google.com/site/comprobo17/projects/warmup-project
@@ -27,19 +28,17 @@ in your ROS package create a file to hold your project writeup. Any format is fi
 # Checklist:
 For concreteness, here are the files you will likely generate as part of this assignment:
 
-warmup_project/bags/drive_square_demo.bag
-warmup_project/bags/finite_state_controller_demo.bag
-warmup_project/bags/obstacle_avoider_demo.bag
-warmup_project/bags/person_follower_demo.bag
-warmup_project/bags/test_drive.bag
-warmup_project/bags/wall_follower_demo.bag
-warmup_project/scripts/teleop.py
-warmup_project/scripts/drive_square.py
-warmup_project/scripts/obstacle_avoider.py
-warmup_project/scripts/finite_state_controller.py
-warmup_project/scripts/person_follower.py
-warmup_project/scripts/wall_follower.py
-warmup_project/writeup.pdf
-
-
+>warmup_project/bags/drive_square_demo.bag
+>warmup_project/bags/finite_state_controller_demo.bag
+>warmup_project/bags/obstacle_avoider_demo.bag
+>warmup_project/bags/person_follower_demo.bag
+>warmup_project/bags/test_drive.bag
+>warmup_project/bags/wall_follower_demo.bag
+>warmup_project/scripts/teleop.py
+>warmup_project/scripts/drive_square.py
+>warmup_project/scripts/obstacle_avoider.py
+>warmup_project/scripts/finite_state_controller.py
+>warmup_project/scripts/person_follower.py
+>warmup_project/scripts/wall_follower.py
+>warmup_project/writeup.pdf
 
