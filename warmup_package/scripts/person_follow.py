@@ -64,8 +64,8 @@ class PersonFollower(object):
 
     def processOdom(self,msg):
         self.pos.x, self.pos.y, self.pos.z = convert_pose_to_xy_and_theta(msg)
-        self.marker.spherey.pose.position.x = self.pos.x
-        self.marker.spherey.pose.position.y = self.pos.y
+        #self.marker.spherey.pose.position.x = self.pos.x
+        #self.marker.spherey.pose.position.y = self.pos.y
 
     def make_marker(self,polar_position):
         delta_y = polar_position[0]*math.sin(polar_position[1])
