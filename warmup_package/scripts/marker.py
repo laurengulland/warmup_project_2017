@@ -34,6 +34,6 @@ class Sphero(object):
             self.r.sleep()
             self.pub.publish(self.spherey)
         print "Node is finished!"
-
-test_marker=Sphero()
-test_marker.run()
+if __name__ == '__main__':
+    test_marker=Sphero()
+    test_marker.run()
