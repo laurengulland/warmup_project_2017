@@ -64,14 +64,14 @@ class PersonFollower(object):
     def process_scan(self,msg):
         self.person = []
         self.see_person = False
-        for i in range(0,20):
+        for i in range(0,40):
             dist = msg.ranges[i]
             if dist == 0.0:
                 continue
             elif dist < 1.0:
                 self.see_person = True
                 self.person.append([dist, i*pi/180])
-        for i in range(340,360):
+        for i in range(320,360):
             dist = msg.ranges[i]
             if dist == 0.0:
                 continue
@@ -114,20 +114,19 @@ class PersonFollower(object):
                 break
             elif self.see_person:
                 self.find_target(self.person)
-                #self.moves.linear.x = -.1
-                #self.moves.angular.z = -.2/(self.wall[0][0])
-                #print "person at:"
-                #print str(self.avgangle)
+
                 print "I need to turn:"
                 print str(angle_diff(self.pos.z, self.avgangle))
+                self.moves.linear.x = 0.2
+                self.moves.angular.z = -angle_diff(self.pos.z, self.avgangle)
             else:
-                self.moves.linear.x = 0.0
+                self.moves.linear.x = 0.2
                 self.moves.angular.z = 0.0
 
                 #print "I'm at:"
                 #print str(self.pos.z)
                 #self.moves.angular.z = .5
-            #self.pub.publish(self.moves)
+            self.pub.publish(self.moves)
             self.r.sleep()
         print "Node is finished!"
         self.fucking_stop()
