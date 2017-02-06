@@ -17,6 +17,41 @@ Full project description and expectations can be found on the course website, [h
 
 
 #Running the Code
+##Neato Requirements
+If you are in CompRobo or are an instructor of CompRobo, skip to the next subsection.
+First, you will need to have a Neato equipped with the RasPi/LIDAR/etc. setup ready to go. Make sure you're connected to the OLIN-ROBOTICS wifi network.
+In order to connect to the neato, clone Paul's [CompRobo repo](https://github.com/paulruvolo/comprobo17) into your catkin workspace (often ~/catkin_ws), and run `$ catkin_make`in the directory. This contains the rosnodes necessary for connecting to the neato. 
+To connect to a neato, run: 
+
+``` 
+$ roscore
+```
+
+And in a separate terminal window, run:
+
+```
+$ roslaunch neato_node bringup.launch host:=IP.ADDRESS.OF.ROBOT
+```
+
+For more details, follow the Neato connection guide written by Paul [here](https://sites.google.com/site/comprobo17/how-to/neato-etiquette).
+
+##Running Our Code
+To be able to run our code, clone this repo into your catkin workspace (often ~/catkin_ws), and run `$ catkin_make`in the directory. You should now have warmup_package as a ROS Package.
+To run any of the scripts in the warmup_project_2017/warmup_package/scripts/ directory, run:
+
+```
+$ rosrun warmup_package SCRIPTNAME.py
+```
+
+Scripts meant to be run include:
+* __teleop.py__: Use teleoperation controls to drive the robot remotely.
+* __drive_square.py__: Autonomously drive the robot in a 1x1m square. (It will drive forward 1m then left 1m so make sure you have space.) 
+* __wall_follow.py__: Autonomously drive the robot straight, until it sees a wall, at which point it will turn parallel to the wall to follow it.
+* __person_follow.py__: The robot will follow any object in front of it. 
+* __obstacle_avoid.py__: The robot will avoid obstacles, and try to return its original angle of travel.
+More on each of these scripts in the next section!
+
+If the scripts don't run, make sure the python files are executable (e.g. try running `chmod u+x FILENAME`). The package and script names should tab complete after the `rosrun`.
 
 #Understanding the Code
 
