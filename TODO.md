@@ -1,6 +1,6 @@
 #Audrey and Looroon's TODO:
 - ~~Add marker to wall follower~~
-- Comment wall and person followers
+- ~~Comment wall and person followers~~
 - ~~Add movement to FS Obj Avoid~~
 - ~~Comment and debug FS Obj Avoid~~
 - ~~Record rosbags for all files/move existing rosbags to correct directory~~
