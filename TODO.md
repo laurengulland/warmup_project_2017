@@ -5,9 +5,9 @@
 - ~~Comment and debug FS Obj Avoid~~
 - ~~Record rosbags for all files/move existing rosbags to correct directory~~
 - ~~Video Demos?~~
-- Write Up all the things!
-- Check to make sure we're not missing anything
-- push and submit
+- ~~Write Up all the things!~~
+- ~~Check to make sure we're not missing anything~~
+- ~~push and submit~~
 - PARTY (sleep)
 
 --- 
