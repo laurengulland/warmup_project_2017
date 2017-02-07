@@ -75,7 +75,10 @@ class Teleop(object):
                 break
             print self.key
             self.keyToVel()
+            print self.linear.x
+
             twist_msg = Twist(linear=self.linear, angular = self.angular)
+            print self.linear
             print twist_msg
             self.pub.publish(twist_msg)
             self.r.sleep()
