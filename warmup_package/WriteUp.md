@@ -82,6 +82,10 @@ Another key difference between the wall follower and the person follower is how 
 [Video Demo!](https://www.youtube.com/watch?v=5vwHkopVCrM)
 
 ##Obstacle Avoidance and Finite-State Control - `obstacle_avoid.py`
-[Video Demo!](https://www.youtube.com/watch?v=7-8pAAtLgBg)
+If you'd like to see a video demo in addition to the rosbags in the /warmup_project_2017/bags directory, you can view our obstacle avoidance working [here!](https://www.youtube.com/watch?v=7-8pAAtLgBg)
+
+Obstacle avoidance is where we decided to implement finite state control. We have two states: travel in the original direction, and avoid obstacle, which you can see in the diagram below.
+![Finite State Diagram](https://github.com/laurengulland/warmup_project_2017/blob/master/warmup_package/finite_state_diagram.png "Finite State Diagram")
+The triggers to switch between states are based on laser scan data -- specifically, whether there is an object in the robot's view or not. When the robot is swtiching back after succesfully avoiding an object, it attempts to return to the original angle of travel, rather than just continuing in the direction the obstacle redirected it into.
 
 #Process, Takeaways, and Improvements
