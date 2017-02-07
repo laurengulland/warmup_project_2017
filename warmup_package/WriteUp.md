@@ -80,6 +80,7 @@ We publish a marker in the '/visualization_marker' topic to illustrate what our 
 
 ##Dynamic Person Following - `person_follow.py`
 Person following uses much of the same sensing mechanics as wall following, except that instead of finding the closest point in a scan, the neato identifies the the center of what it is sensing, presumably a person, and moves toward that center. This is accomplished through the "find_target" function in the Person Follower class. Find_target takes all the identified points within our range averages all the angles and all the distances using numpy to find the approximate center in polar coordinates, which is then passed to the marker class like the wall follower.
+
 Another key difference between the wall follower and the person follower is how they utilize proportional control in their movements. The wall follower turns more and more as it approaches the wall, so in the code the turning speed is divided by the distance. In the person follower, the neato must accelerate to close larger distances faster, so it multiplies a set speed by the its distance from the person center.
 [Video Demo!](https://www.youtube.com/watch?v=5vwHkopVCrM)
 
@@ -96,3 +97,6 @@ The "avoid" state of obstacle avoidance is actually almost identical to our wall
 The "travel" state is also quite similar to methods implemented in our drive square script, with how it calculates turns it needs to make (with the goal now being the original direction rather than a standard 90 degrees) and the method of straight travel until an interruption.
 
 #Process, Takeaways, and Improvements
+This project was an effective introduction to ROS nodes and the different control methods that they can utilize. We hit all of the project objectives in terms of which behaviors our code produces. We also both made significant improvements in our understanding of ROS architecture. We went from barely being able to run code with the Neato to a back and forth coding, testing, and debugging strategy that necessitated rapid use of ROS and Rviz. 
+
+If we were to do this project again, we would frontload the work more, but there are also specific improvements we would make in code. We would create the marker code as we wrote behaviors so that we could actually use it for debugging, and publish the markers in the /base_link frame instead of converting to /odom. We would implement a more robust obstacle avoidance that didn't get stuck in tight corners. We could have used the object-oriented nature of Python more to our advantage by passing between classes more, and importing from our previous work.
