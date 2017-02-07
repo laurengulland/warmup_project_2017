@@ -77,7 +77,9 @@ We wrote three functions that control the robot at different times, which allow 
 ##Wall Following - `wall_follow.py`
 
 ##Dynamic Person Following - `person_follow.py`
+[Video Demo!](https://www.youtube.com/watch?v=5vwHkopVCrM)
 
 ##Obstacle Avoidance and Finite-State Control - `obstacle_avoid.py`
+[Video Demo!](https://www.youtube.com/watch?v=7-8pAAtLgBg)
 
 #Process, Takeaways, and Improvements
