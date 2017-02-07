@@ -88,6 +88,11 @@ If you'd like to see a video demo in addition to the rosbags in the /warmup_proj
 
 Obstacle avoidance is where we decided to implement finite state control. We have two states: travel in the original direction, and avoid obstacle, which you can see in the diagram below.
 ![Finite State Diagram](https://github.com/laurengulland/warmup_project_2017/blob/master/warmup_package/finite_state_diagram.png "Finite State Diagram")
+
 The triggers to switch between states are based on laser scan data -- specifically, whether there is an object in the robot's view or not. When the robot is swtiching back after succesfully avoiding an object, it attempts to return to the original angle of travel, rather than just continuing in the direction the obstacle redirected it into.
+
+The "avoid" state of obstacle avoidance is actually almost identical to our wall-following mechanism; it proportionally navigates parallel to the object based on the closest point, which means that it's not flawless, but won't get trapped in simple corners. Possible failure points of this are due to the fact that it calculates based off of the closest object, but doesn't think far enough ahead to navigate away from larger-scale obstacles. For example, if the robot navigates itself into a tight or angular corner, it probably won't be able to turn fast enough to back out. 
+
+The "travel" state is also quite similar to methods implemented in our drive square script, with how it calculates turns it needs to make (with the goal now being the original direction rather than a standard 90 degrees) and the method of straight travel until an interruption.
 
 #Process, Takeaways, and Improvements
